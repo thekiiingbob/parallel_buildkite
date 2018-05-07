@@ -1,3 +1,3 @@
 #!/bin/bash
-echo "Folder One - Test One"
-exit 0
+echo "Folder Three - Test One"
+curl -sSL http://localhost:4444/wd/hub/status | jq .value.ready | grep true
