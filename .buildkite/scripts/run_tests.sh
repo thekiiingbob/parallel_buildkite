@@ -4,6 +4,7 @@
 set -eu
 
 # add a new command step to run the tests in each test directory
-for file in tests/$1/*; do
-  echo "Testing "${file}""
+for file in $1/*; do
+  echo "--- Running Test for "$file""
+  $file
 done
