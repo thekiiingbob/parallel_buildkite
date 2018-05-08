@@ -1,15 +1,17 @@
-version: '2'
+version: '2.1'
+
 services:
   app:
     build: .
     volumes:
     - ./:/app/
+    tty: true
     environment:
+      - BUILDKITE
       - BUILDKITE_AGENT_ACCESS_TOKEN
       - BUILDKITE_JOB_ID
       - BUILDKITE_BUILD_ID
       - BUILDKITE_BUILD_NUMBER
       - GITHUB_RELEASE_ACCESS_TOKEN
       - DOCKER_HUB_TRIGGER_TOKEN
-    
-  
+      - ZALENIUM_HOST

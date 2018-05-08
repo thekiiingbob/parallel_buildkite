@@ -1,0 +1,39 @@
+version: '2.1'
+
+services:
+  zalenium:
+    image: "dosel/zalenium"
+    container_name: zalenium
+    tty: true
+    privileged: true
+    volumes:
+      - /tmp/videos:/home/seluser/videos
+      - /var/run/docker.sock:/var/run/docker.sock
+      # - /usr/bin/docker:/usr/bin/docker
+      - /tmp/:/tmp/
+    hostname: zalenium
+    ports:
+          - 4444:4444
+    expose:
+      - "4444"
+    command: >
+      start --chromeContainers 1
+            --firefoxContainers 0
+            --maxDockerSeleniumContainers 5
+            --screenWidth 1930 --screenHeight 1090
+            --timeZone "America/Chicago"
+            --videoRecordingEnabled true
+            --sauceLabsEnabled false
+            --browserStackEnabled false
+            --testingBotEnabled false
+            --startTunnel false
+    environment:
+      - SAUCE_USERNAME
+      - SAUCE_ACCESS_KEY
+      - BROWSER_STACK_USER
+      - BROWSER_STACK_KEY
+      - TESTINGBOT_KEY
+      - TESTINGBOT_SECRET
+      - DOCKER=17.09.1-ce
+      - VIRTUAL_HOST=zalenium.docker
+      
