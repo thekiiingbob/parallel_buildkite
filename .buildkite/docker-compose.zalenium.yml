@@ -5,7 +5,7 @@ services:
     image: "dosel/zalenium"
     container_name: zalenium
     tty: true
-    privileged: true
+    # privileged: true
     volumes:
       - /tmp/videos:/home/seluser/videos
       - /var/run/docker.sock:/var/run/docker.sock
