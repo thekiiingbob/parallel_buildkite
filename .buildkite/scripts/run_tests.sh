@@ -16,16 +16,19 @@ else
   echo "Running on buildkite"
 fi 
 
+echo "--- :docker: Docker Compose Up Zalenium"
 docker-compose -f .buildkite/docker-compose.zalenium.yml up -d --force-recreate
 
+echo "--- :docker: Inspect Network (Debug)"
 docker network inspect buildkite_test
 
+echo "--- :docker: Inspect Zalenium (Debug)"
 docker container inspect zalenium
 
 # add a new command step to run the tests in each test directory
 for file in $1/*; do
   echo "--- Running Test for "$file""
-  docker-compose run --service-ports -e ZALENIUM_HOST=$ZALENIUM_HOST app $file
+  docker-compose run --service-ports -e app $file
 done
 
 docker-compose -f .buildkite/docker-compose.zalenium.yml stop
