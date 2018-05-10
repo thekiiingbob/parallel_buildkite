@@ -12,8 +12,10 @@ services:
       # - /usr/bin/docker:/usr/bin/docker
       - /tmp/:/tmp/
     hostname: zalenium
+    networks:
+      test:
     ports:
-          - 4444:4444
+          - "4444:4444"
     expose:
       - "4444"
     command: >
@@ -36,4 +38,6 @@ services:
       - TESTINGBOT_SECRET
       - DOCKER=17.09.1-ce
       - VIRTUAL_HOST=zalenium.docker
-      
+
+networks:
+  test:

@@ -18,6 +18,10 @@ fi
 
 docker-compose -f .buildkite/docker-compose.zalenium.yml up -d --force-recreate
 
+docker network inspect buildkite_test
+
+docker container inspect zalenium
+
 # add a new command step to run the tests in each test directory
 for file in $1/*; do
   echo "--- Running Test for "$file""

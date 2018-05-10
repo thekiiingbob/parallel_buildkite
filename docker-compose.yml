@@ -6,6 +6,8 @@ services:
     volumes:
     - ./:/app/
     tty: true
+    networks:
+      buildkite_test:
     environment:
       - BUILDKITE
       - BUILDKITE_AGENT_ACCESS_TOKEN
@@ -15,3 +17,7 @@ services:
       - GITHUB_RELEASE_ACCESS_TOKEN
       - DOCKER_HUB_TRIGGER_TOKEN
       - ZALENIUM_HOST
+
+networks:
+  buildkite_test:
+    external: true
