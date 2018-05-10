@@ -6,6 +6,8 @@ services:
     volumes:
     - ./:/app/
     tty: true
+    external_links:
+      - zalenium
     networks:
       buildkite_test:
     environment:
