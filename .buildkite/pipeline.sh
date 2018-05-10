@@ -5,9 +5,9 @@ set -eu
 
 # begin the pipeline.yml file
 echo "steps:"
-echo "  - name: \":docker: Build\""
-echo "    command: \"docker-compose build\""
-echo "  - wait"
+# echo "  - name: \":docker: Build\""
+# echo "    command: \"docker-compose build\""
+# echo "  - wait"
 
 # add a new command step to run the tests in each test directory
 for test_dir in tests/*; do
