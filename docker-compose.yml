@@ -16,7 +16,7 @@ services:
       - BUILDKITE_BUILD_NUMBER
       - GITHUB_RELEASE_ACCESS_TOKEN
       - DOCKER_HUB_TRIGGER_TOKEN
-      - ZALENIUM_HOST
+      - ZALENIUM_IP
 
 networks:
   buildkite_test:

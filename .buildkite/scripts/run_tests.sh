@@ -19,6 +19,10 @@ fi
 echo "--- :docker: Docker Compose Up Zalenium"
 docker-compose -f .buildkite/docker-compose.zalenium.yml up -d --force-recreate
 
+ZALENIUM_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' zalenium)
+
+echo "--- Zalenium's IP is $ZALENIUM_IP"
+
 echo "--- :docker: Inspect Network (Debug)"
 docker network inspect buildkite_test
 
@@ -28,7 +32,7 @@ docker container inspect zalenium
 # add a new command step to run the tests in each test directory
 for file in $1/*; do
   echo "--- Running Test for "$file""
-  docker-compose run --service-ports app $file
+  docker-compose run --service-ports -e ZALENIUM_IP=$ZALENIUM_IP app $file
 done
 
 docker-compose -f .buildkite/docker-compose.zalenium.yml stop
