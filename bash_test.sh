@@ -1,25 +1,14 @@
 #!/bin/bash
 
-# trap ctrl-c and call ctrl_c()
-trap ctrl_c INT
+REGEX="\tests\/(.+)"
 
-function ctrl_c() {
-   # Get our process group id
-  PGID=$(ps -o pgid= $$ | grep -o [0-9]*)
-
-  # Kill it in a new new process group
-  kill -- -$PGID
-  exit 0
-}
-
-for n in 1 2 3 4 5 6 7 8 9 10; 
-do 
-  echo "Attempt $n in background process"
-  sleep 2
-done &
-
-for n in 1 2 3 4 5 6 7 8 9 10; 
-do 
-  echo "Attempt $n in main process"
-  sleep 2
-done
+if [[ $1 =~ $REGEX ]]
+then
+    FOLDER_NAME="${BASH_REMATCH[1]}"
+    FOLDER_PATH=$1
+    echo "Running tests in folder $FOLDER_NAME"
+    exit 0
+else
+    echo "$1 doesn't match test path regex. Tests should live in test/specs/multibrowser/* Exiting..."
+    exit 1
+fi

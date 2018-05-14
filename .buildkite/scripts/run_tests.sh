@@ -26,7 +26,7 @@ function ctrl_c() {
   exit 0
 }
 
-REGEX="\tests\/(.+)"
+REGEX="tests\/(.+)"
 if [[ $1 =~ $REGEX ]]
 then
     FOLDER_NAME="${BASH_REMATCH[1]}"
