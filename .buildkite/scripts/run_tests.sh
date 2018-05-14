@@ -65,9 +65,11 @@ docker-machine create \
 --amazonec2-access-key $AWS_ACCESS_KEY_ID \
 --amazonec2-secret-key $AWS_SECRET_ACCESS_KEY \
 --driver amazonec2 \
---amazonec2-region us-east-1 \
---amazonec2-zone "c" \
+--amazonec2-vpc-id vpc-686f0500 \
+--amazonec2-region us-east-2 \
 --amazonec2-instance-type c4.4xlarge $FINAL_MACHINE_NAME
+# --amazonec2-zone "c" \
+
 
 ZALENIUM_IP=$(docker-machine ip $FINAL_MACHINE_NAME)
 echo "--- Zalenium's IP is $ZALENIUM_IP"
