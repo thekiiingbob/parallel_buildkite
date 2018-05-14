@@ -69,6 +69,7 @@ docker-machine create \
 # --amazonec2-zone "c" \
 
 ZALENIUM_IP=$(docker-machine ip $FINAL_MACHINE_NAME)
+export ZALENIUM_IP
 echo "--- Zalenium's IP is $ZALENIUM_IP"
 
 # Start up Zalenium on EC2 Instance
@@ -124,7 +125,8 @@ fi
 # add a new command step to run the tests in each test directory
 for file in $FOLDER_PATH/*; do
   echo "--- :allthethings: Running Tests for "$file""
-  docker-compose run -e ZALENIUM_IP=$ZALENIUM_IP app $file
+  ZALENIUM_IP=$ZALENIUM_IP
+  bash $file
 done
 
 # Capture the exit status
