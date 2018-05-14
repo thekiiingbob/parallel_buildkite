@@ -26,6 +26,8 @@ function ctrl_c() {
   exit 0
 }
 
+set -eo pipefail
+
 REGEX="tests\/(.+)"
 if [[ $1 =~ $REGEX ]]
 then
@@ -84,6 +86,8 @@ docker pull elgalu/selenium
 echo "--- :docker: Starting up Zalenium server with docker compose"
 docker-compose -f .buildkite/docker-compose.zalenium.yml up -d --force-recreate
 
+
+set +e
 echo "--- :white_check_mark: Checking to see if Zalenium Grid is ready"
 ZALENIUM_READY=false
 for n in 1 2 3 4 5 6 7 8 9 10; 
