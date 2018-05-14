@@ -59,8 +59,6 @@ else
 fi
 
 echo "--- :aws-ec2: Zalenium EC2 instance named: $FINAL_MACHINE_NAME"
-
-echo "--- :docker: Docker Compose Up Zalenium"
 docker-machine create \
 --amazonec2-access-key $AWS_ACCESS_KEY_ID \
 --amazonec2-secret-key $AWS_SECRET_ACCESS_KEY \
@@ -70,13 +68,12 @@ docker-machine create \
 --amazonec2-instance-type c4.4xlarge $FINAL_MACHINE_NAME
 # --amazonec2-zone "c" \
 
-
 ZALENIUM_IP=$(docker-machine ip $FINAL_MACHINE_NAME)
 echo "--- Zalenium's IP is $ZALENIUM_IP"
 
 # Start up Zalenium on EC2 Instance
 echo "--- :docker: Switching docker environment to machine"
-eval $(docker-machine env $FINAL_MACHINE_NAME)
+eval $(docker-machine env $FINAL_MACHINE_NAME --shell bash)
 
 echo "--- :docker: Pulling elgalu/selenium on Zalenium EC2 Instance"
 docker pull elgalu/selenium
