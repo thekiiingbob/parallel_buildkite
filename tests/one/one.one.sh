@@ -3,10 +3,16 @@
 set -eu
 
 echo "Folder One - Test One"
-echo "Sleeping for 30s"
-sleep 30s
 
-ZALENIUM_READY=$(curl --max-time 15 -sSL http://$ZALENIUM_IP:4444/wd/hub/status )
+ZALENIUM_READY=$(curl --max-time 15 -sSL http://$ZALENIUM_IP:4444/wd/hub/status | jq .value.ready )
+
 echo $ZALENIUM_READY
-echo "Done!"
-exit 0
+
+if [[ $ZALENIUM_READY = true ]]
+  then 
+    echo "Zalenium server is ready"
+    exit 0
+  else
+    echo "Zalenium is not ready"
+    exit 1
+fi

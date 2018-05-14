@@ -5,19 +5,15 @@ services:
     image: "dosel/zalenium"
     container_name: zalenium
     tty: true
-    # privileged: true
+    privileged: true
     volumes:
       - /tmp/videos:/home/seluser/videos
       - /var/run/docker.sock:/var/run/docker.sock
-      # - /usr/bin/docker:/usr/bin/docker
+      - /usr/bin/docker:/usr/bin/docker
       - /tmp/:/tmp/
     hostname: zalenium
-    networks:
-      test:
     ports:
-          - "4444:4444"
-    expose:
-      - "4444"
+      - 4444:4444
     command: >
       start --chromeContainers 1
             --firefoxContainers 0
@@ -36,8 +32,3 @@ services:
       - BROWSER_STACK_KEY
       - TESTINGBOT_KEY
       - TESTINGBOT_SECRET
-      - DOCKER=17.09.1-ce
-      - VIRTUAL_HOST=zalenium.docker
-
-networks:
-  test:
