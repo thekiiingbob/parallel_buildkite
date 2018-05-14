@@ -66,7 +66,6 @@ docker-machine create \
 --amazonec2-vpc-id vpc-686f0500 \
 --amazonec2-region us-east-2 \
 --amazonec2-instance-type c4.4xlarge $FINAL_MACHINE_NAME
-# --amazonec2-zone "c" \
 
 ZALENIUM_IP=$(docker-machine ip $FINAL_MACHINE_NAME)
 export ZALENIUM_IP
