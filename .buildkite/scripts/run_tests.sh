@@ -13,10 +13,7 @@ function ctrl_c() {
   else
     echo "--- $FINAL_MACHINE_NAME is up, tearing it down"
     sleep 5s
-    echo "--- Stopping $FINAL_MACHINE_NAME"
-    docker-machine stop $FINAL_MACHINE_NAME
-    echo "--- :exploding_death_star: Removing $FINAL_MACHINE_NAME"
-    docker-machine rm -f $FINAL_MACHINE_NAME
+    cleanup
   fi
 
   # kill all other processes
@@ -26,30 +23,34 @@ function ctrl_c() {
   exit 0
 }
 
-set -eo pipefail
+function cleanup() {
+  echo "--- Stopping $FINAL_MACHINE_NAME"
+  docker-machine stop $FINAL_MACHINE_NAME
+  echo "--- :exploding_death_star: Removing $FINAL_MACHINE_NAME"
+  docker-machine rm -f $FINAL_MACHINE_NAME
+}
+
+echo "--- :docker: Checking docker paths"
+whoami
+pwd
+ls /usr/local/bin
 
 REGEX="tests\/(.+)"
 if [[ $1 =~ $REGEX ]]
 then
-    FOLDER_NAME="${BASH_REMATCH[1]}"
-    FOLDER_PATH=$1
-    echo "Running tests in folder $FOLDER_NAME"
+  FOLDER_NAME="${BASH_REMATCH[1]}"
+  FOLDER_PATH=$1
+  echo "Running tests in folder $FOLDER_NAME"
 else
-    echo "$1 doesn't match test path regex. Tests should live in test/specs/multibrowser/* Exiting..."
-    exit 1
+  echo "$1 doesn't match test path regex. Tests should live in test/specs/multibrowser/* Exiting..."
+  exit 1
 fi
-
-if [ -z "$BUILDKITE" ]
-then
-  echo "Not running on buildkite. Running on dinghy docker machine"
-  USE_DINGHY=true
-  eval $(dinghy env)
-else
-  echo "Running on buildkite."
-fi 
 
 # Create Docker Machine on AWS
 echo "--- :aws: Creating docker machine on AWS for $1"
+
+echo "ID $AWS_ACCESS_KEY_ID"
+echo "KEY $AWS_SECRET_ACCESS_KEY"
 
 if [ -z "$MACHINE_NAME" ]
 then
@@ -80,51 +81,50 @@ docker pull elgalu/selenium
 
 echo "--- :docker: Starting up Zalenium server with docker compose"
 docker-compose -f .buildkite/docker-compose.zalenium.yml up -d --force-recreate
+DOCKER_COMPOSE_EXIT_STATUS=$?
+echo "Docker compose exit status $DOCKER_COMPOSE_EXIT_STATUS"
 
+ZALENIUM_READY="false"
 
-set +e
-echo "--- :white_check_mark: Checking to see if Zalenium Grid is ready"
-ZALENIUM_READY=false
-for n in 1 2 3 4 5 6 7 8 9 10; 
-do 
-  echo "Attempt $n at checking if Zalenium is ready to receive tests"
-  ZALENIUM_READY=$(curl -sSL http://$ZALENIUM_IP:4444/wd/hub/status | jq .value.ready | grep true)
-  echo "Is Zalenium ready? $ZALENIUM_READY"
+if [[ $DOCKER_COMPOSE_EXIT_STATUS = 0 ]]
+then
+  echo "--- :white_check_mark: Checking to see if Zalenium Grid is ready"
+  for n in 1 2 3 4 5; 
+  do 
+    echo "Attempt $n at checking if Zalenium is ready to receive tests."
+    ZALENIUM_READY=$(curl -sSL http://$ZALENIUM_IP:4444/wd/hub/status | jq .value.ready )
+    echo "Is Zalenium ready? $ZALENIUM_READY"
 
-  if [[ $ZALENIUM_READY = true ]]
-  then 
-    echo "$FINAL_MACHINE_NAME server is ready"
-    sleep 5s
-    break
-  else
-    sleep 10s
-  fi
-done
-
-if [[ $ZALENIUM_READY = false ]]
-then 
-  echo "$FINAL_MACHINE_NAME is NOT ready after 10 attempts"
-  sleep 5s
-  echo "--- Stopping $FINAL_MACHINE_NAME"
-  docker-machine stop $FINAL_MACHINE_NAME
-  echo "--- :exploding_death_star: Removing $FINAL_MACHINE_NAME"
-  docker-machine rm -f $FINAL_MACHINE_NAME
+    if [[ $ZALENIUM_READY = "true" ]]
+    then 
+      echo "$FINAL_MACHINE_NAME server is ready"
+      sleep 5s
+      break
+    else
+      sleep 10s
+    fi
+  done
+else
+  echo "Docker compose command failed removing docker machine"
+  cleanup
   exit 1
 fi
 
-# Run tests
-echo "--- :docker: Switching docker environment to default"
-if [[ $USE_DINGHY = true ]]
-then
-  eval $(docker-machine env dinghy)
-else
-  eval $(docker-machine env default)
+if [[ $ZALENIUM_READY = "false" ]]
+then 
+  echo "$FINAL_MACHINE_NAME is NOT ready after 10 attempts"
+  sleep 5s
+  cleanup
+  exit 1
 fi
+
+echo "--- :docker: Switching to default docker machine"
+docker-machine list
+eval $(docker-machine env default)
 
 # add a new command step to run the tests in each test directory
 for file in $FOLDER_PATH/*; do
   echo "--- :allthethings: Running Tests for "$file""
-  ZALENIUM_IP=$ZALENIUM_IP
   bash $file
 done
 
@@ -133,9 +133,6 @@ TESTS_EXIT_STATUS=$?
 echo "--- Test Exit Status $TESTS_EXIT_STATUS"
 
 # Remove Zalenium EC2 at end of testing
-echo "--- Stopping $FINAL_MACHINE_NAME"
-docker-machine stop $FINAL_MACHINE_NAME
-echo "--- :exploding_death_star: Removing $FINAL_MACHINE_NAME"
-docker-machine rm -f $FINAL_MACHINE_NAME
+cleanup
 
 exit $TEST_EXIT_STATUS
